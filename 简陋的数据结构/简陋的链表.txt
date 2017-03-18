@@ -1,0 +1,74 @@
+struct  node
+{
+	int mData;
+	node* next;
+};
+class mylist{
+	node* head;
+public:
+	mylist(){ head = NULL; }
+	~mylist();
+	bool searchList(int k);
+	void addList(int data);
+	void deleteList(int data);
+	void printList();
+};
+
+void mylist::printList(){
+	node *p = head;
+	while (p!=NULL)
+	{
+		cout << p->mData << " ";
+		p = p->next;
+	}
+	cout << endl;
+}
+	void mylist::addList( int data){
+	node* datap = new node;
+	datap->mData = data;
+	datap->next = NULL;
+	if (head == NULL){
+		head = datap;
+		return;
+	}
+	node *p = head;
+	while (p->next!= NULL&&p->mData!=data)
+		p = p->next;
+	if (p->mData == data)return;
+     p->next = datap;
+}
+void mylist::deleteList(int data){
+	if (head == NULL)return;
+	if (head->mData == data){
+		delete head;
+		head = NULL;
+		return;
+	}
+	node *p = head;
+	while (p->next!= NULL){
+		if (p->next->mData == data){
+			node *getp = p->next;
+			p->next = getp->next;
+			delete getp;
+			return;
+		}
+		p = p->next;
+	}
+}
+bool mylist::searchList(int k){
+	node* p = head;
+	while(p != NULL){
+		if (p->mData == k)
+			return true;
+		p = p->next;
+	}
+	return false;
+}
+mylist::~mylist(){
+	node *p ;
+	while (head != NULL){
+		p = head;
+		head = head->next;
+		delete p;
+	}
+}   //这是mylist的定义；

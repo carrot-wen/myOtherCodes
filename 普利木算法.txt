@@ -1,0 +1,46 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+struct a{
+    int last;
+    int jl;
+}dian[10];
+int g[10][10];
+int main()
+{
+     int i,j,k,r,min;
+     for(i=0;i<9;i++)
+         for(j=0;j<9;j++)
+             scanf("%d",&g[i][j]);
+     for(j=0;j<9;j++)
+     {
+         dian[j].last=0;
+         dian[j].jl=g[0][j];
+     }
+     for(i=1;i<9;i++)
+     {
+         min=633;
+         j=1;k=j;
+         while(j<9){
+            if(dian[j].jl!=0&&dian[j].jl<min){
+                k=j;
+                min=dian[j].jl;
+
+            }
+            j++;
+         }
+         printf("(%d,%d)->   %d\n,",dian[k].last,k,min);
+         for(j=1;j<9;j++)
+         {
+            if(g[k][j]<dian[j].jl&&g[k][j]){
+                dian[j].jl=g[k][j];
+                dian[j].last=k;
+            }
+         }
+         dian[k].jl=0;
+     }
+    return 0;
+
+}
+
+

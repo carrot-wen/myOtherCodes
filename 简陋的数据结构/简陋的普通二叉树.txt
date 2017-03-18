@@ -1,0 +1,129 @@
+struct  node
+{
+	typedef int type_data;
+	type_data  mData;
+	node* left;
+	node* right;
+	node* parent;
+	node(type_data k)
+		:mData(k), left(nullptr), right(nullptr), parent(nullptr)
+	{}
+};
+class binary_tree{
+	node* root;
+	void deletenode(node*);
+	void removenode(node* );
+	void print(node*);
+public:
+	typedef node::type_data type_data;
+	binary_tree(type_data k){ root = new node(k); }
+	~binary_tree();
+	void addBT(type_data);
+	node* searchBT(type_data);
+	void deleteBT(type_data);
+	void printBT();
+};
+binary_tree::~binary_tree(){
+	deletenode(root);
+}
+void binary_tree::deletenode(node* root){
+	if (root != nullptr){
+		deletenode(root->left);
+		deletenode(root->right);
+		delete root;
+	}}
+void binary_tree::addBT(type_data k){
+	if (searchBT(k)==nullptr){
+		node* p = root;
+		node* s = new node(k);
+		while (p!=nullptr)
+		{
+			s->parent = p;
+			if (p->mData < k)p = p->right;
+			else p = p->left;
+		}
+		p = s->parent;
+		if (p->mData>k)p->left = s;
+		else p->right = s;
+	}}
+node* binary_tree::searchBT(type_data k){
+	node* p = root;
+	while (p!=nullptr)
+	{
+		if (p->mData > k) p= p->left;
+		else if(p->mData<k)p = p->right;
+		else return p;
+	}
+	return nullptr;}
+void binary_tree::deleteBT(type_data k){
+	node* p = searchBT(k);
+	 if (p != nullptr){
+		if (p == root){
+			if (p->left == nullptr&&p->right == nullptr){
+				delete p;
+				root = nullptr;
+		    }
+			else if (p->right == nullptr){
+				root = root->left;
+				delete p;
+			}
+			else if (p->left == nullptr){
+				root = root->right;
+				delete p;
+			}
+			else removenode(p);
+		}
+		else removenode(p);
+	}
+	
+	}
+void binary_tree::removenode(node* p){
+	    type_data k = p->mData;
+		node* parent = p->parent; 
+		//如果p没有儿子的话
+		  if (p->left==nullptr&&p->right==nullptr)
+		  {
+			  if (parent->mData > k)parent->left = nullptr;
+			  else parent->right = nullptr;
+			  delete p;
+		  }
+		//如果p只有一个左儿子的话
+		  else if (p->right == nullptr){
+			  p->left->parent = parent;
+			  if (parent->mData > k)parent->left = p->left;
+			  else parent->right = p->left;
+			  delete p;
+		  }
+		//如果p只有一个右儿子的话
+		  else if (p->left == nullptr){
+			  p->right->parent = parent;
+			  if (parent->mData > k)parent->left = p->right;
+			  else parent->right = p->right;
+			  delete p;
+		  }
+		//如果p有两个儿子的话;
+		  else {
+			  node *next = p->right;
+			  while (next->left != nullptr)
+				  next = next->left;
+			  p->mData = next->mData;
+			  removenode(next);
+		  }
+		  
+		     
+}
+void binary_tree::printBT(){
+	if (root != nullptr){
+     print(root->left);
+	 cout << " " << root->mData << " ";
+	 print(root->right);
+	 cout << endl;
+	}
+}
+void binary_tree::print(node* p){
+	if (p != nullptr){
+      print(p->left);
+	  cout << " " << p->mData << " ";
+	  print(p->right);
+	}
+}

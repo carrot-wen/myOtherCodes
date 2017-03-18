@@ -1,0 +1,16 @@
+#include<cstdlib>
+#include <windows.h>
+//清屏
+ system("cls");
+//移动光标
+void gotoxy(int x,int y)
+{
+   COORD coord={x,y};
+   SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE),coord);
+}
+/*
+在dos屏幕下，显示区域是80行，25列，也就是80*25。
+并规定屏幕左上角为（0,0），gotoxy(x,y)是将光标移动到(x,y)；
+*/
+//清理缓存区：
+fflush(stdin);

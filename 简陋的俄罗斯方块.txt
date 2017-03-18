@@ -1,0 +1,1769 @@
+//显然，这已经是很原始版的代码了，但是我懒得更新了。
+class Block;
+class Als_chess{
+private:
+    char** curtain;
+    int level;
+    int score;
+    int score_for_level_up;
+    bool flag_running;
+    Block* next_block;
+    Block* now_block;
+    inline void add_score();
+    inline void change_block(int );
+    inline void clear_floor();
+    inline void down();
+    inline void deformation();
+    inline void delete_floor(int );
+    inline bool full_floor(int );
+    Block* get_new_block();
+    inline void game_lose();
+    inline int get_choose();
+    inline bool hit_bottom();
+    inline bool is_running();
+    inline void judge_bottom();
+    void print();
+    inline double random(double,double );
+    inline void turn_left();
+    inline void turn_right();
+public:
+     enum { ERROR_IN=0,
+           TURN_LEFT=1,
+           TURN_RIGHT=2,
+           DOWN=3,
+           DEFORMATION=4,
+           GIVE_UP=5,
+           LEVEL_X=7,
+           LEVEL_Y=22,
+           SCORE_X=9,
+           SCORE_Y=22,
+           NEXT_X=2,
+           NEXT_Y=26,
+           LEN_X=15,
+           LEN_Y=20
+         };
+     Als_chess();
+     ~Als_chess();
+     void game_begin();
+     bool game_over();
+     void view();
+     inline void fill(int ,int );
+     inline bool filled(int ,int );
+     inline void deleted(int ,int );
+};
+class Block{
+protected:
+    enum{
+       UP=100,
+       DOWN,
+       LEFT,
+       RIGHT,
+       UP_LEFT,
+       UP_RIGHT,
+       UP_DOWN,
+       LEFT_LEFT,
+       LEFT_RIGHT,
+       LEFT_DOWN,
+       DOWN_LEFT,
+       DOWN_RIGHT,
+       DOWN_DOWN,
+       RIGHT_LEFT,
+       RIGHT_RIGHT,
+       RIGHT_DOWN,
+    };
+public:
+    int x,y;
+    int level;
+    Block();
+    virtual ~Block();
+    inline bool in_top();
+    virtual void fill(Als_chess*)=0;
+    virtual void deleted(Als_chess*)=0;
+    virtual void deformation(Als_chess*)=0;
+    virtual void turn_left(Als_chess*)=0;
+    virtual void turn_right(Als_chess*)=0;
+    virtual void down(Als_chess*)=0;
+    virtual void print_next()=0;
+    virtual bool hit_bottom(Als_chess*)=0;
+    virtual bool over_line(int ,Als_chess* )=0;
+    virtual int last_floor()=0;
+};
+class Square :public Block{
+public:
+    Square();
+    ~Square();
+    virtual void fill(Als_chess*);
+    virtual void deleted(Als_chess*);
+    virtual void deformation(Als_chess*);
+    virtual void turn_left(Als_chess*);
+    virtual void turn_right(Als_chess*);
+    virtual void down(Als_chess*);
+    virtual void print_next();
+    virtual bool hit_bottom(Als_chess*);
+    virtual bool over_line(int ,Als_chess* );
+    virtual int last_floor();
+};
+class Triangle :public Block{
+public:
+    Triangle();
+    ~Triangle();
+    virtual void fill(Als_chess*);
+     virtual void deleted(Als_chess*);
+    virtual void deformation(Als_chess*);
+    virtual void turn_left(Als_chess*);
+    virtual void turn_right(Als_chess*);
+    virtual void down(Als_chess*);
+    virtual void print_next();
+    virtual bool hit_bottom(Als_chess*);
+    virtual bool over_line(int ,Als_chess* );
+    virtual int last_floor();
+};
+class Hook :public Block{
+public:
+    Hook();
+    ~Hook();
+    virtual void fill(Als_chess*);
+    virtual void deleted(Als_chess*);
+    virtual void deformation(Als_chess*);
+    virtual void turn_left(Als_chess*);
+    virtual void turn_right(Als_chess*);
+    virtual void down(Als_chess*);
+    virtual void print_next();
+    virtual bool hit_bottom(Als_chess*);
+    virtual bool over_line(int ,Als_chess* );
+    virtual int last_floor();
+};
+class Left_stick: public Block{
+public:
+    Left_stick();
+    ~Left_stick();
+    virtual void fill(Als_chess*);
+    virtual void deleted(Als_chess*);
+    virtual void deformation(Als_chess*);
+    virtual void turn_left(Als_chess*);
+    virtual void turn_right(Als_chess*);
+    virtual void down(Als_chess*);
+    virtual void print_next();
+    virtual bool hit_bottom(Als_chess*);
+    virtual bool over_line(int ,Als_chess* );
+    virtual int last_floor();
+};
+class Right_stick: public Block{
+public:
+    Right_stick();
+    ~Right_stick();
+    virtual void fill(Als_chess*);
+    virtual void deleted(Als_chess*);
+    virtual void deformation(Als_chess*);
+    virtual void turn_left(Als_chess*);
+    virtual void turn_right(Als_chess*);
+    virtual void down(Als_chess*);
+    virtual void print_next();
+    virtual bool hit_bottom(Als_chess*);
+    virtual bool over_line(int ,Als_chess* );
+    virtual int last_floor();
+};
+class Left_parall:public Block{
+public:
+    Left_parall();
+    ~Left_parall();
+    virtual void fill(Als_chess*);
+    virtual void deleted(Als_chess*);
+    virtual void deformation(Als_chess*);
+    virtual void turn_left(Als_chess*);
+    virtual void turn_right(Als_chess*);
+    virtual void down(Als_chess*);
+    virtual void print_next();
+    virtual bool hit_bottom(Als_chess*);
+    virtual bool over_line(int ,Als_chess* );
+    virtual int last_floor();
+};
+class Right_parall:public Block{
+public:
+     Right_parall();
+    ~ Right_parall();
+    virtual void fill(Als_chess*);
+    virtual void deleted(Als_chess*);
+    virtual void deformation(Als_chess*);
+    virtual void turn_left(Als_chess*);
+    virtual void turn_right(Als_chess*);
+    virtual void down(Als_chess*);
+    virtual void print_next();
+    virtual bool hit_bottom(Als_chess*);
+    virtual bool over_line(int ,Als_chess* );
+    virtual int last_floor();
+};
+
+void init();
+inline void clear_window();
+inline void gotoxy();
+
+
+
+#include<iostream>
+#include<cstdio>
+#include<cstdlib>
+#include <windows.h>
+#include <time.h>
+#include "head.h"
+using namespace std;
+
+inline void clear_window(){
+  system("cls");
+}
+inline void gotoxy(int x,int y){
+   COORD coord={y,x};
+   SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE),coord);
+}
+void init(){
+  Als_chess* chess=NULL;
+  bool select=true;
+  chess=new Als_chess();
+  chess->view();
+  while(select){
+     chess->game_begin();
+     select=chess->game_over();
+     if(select){
+        delete chess;
+        chess=new Als_chess();
+     }
+  }
+  delete chess;
+}
+Als_chess::Als_chess(){
+    srand(unsigned(time(0)));
+    score=0;
+    level=1;
+    score_for_level_up=5;
+    flag_running=true;
+    curtain=new char*[LEN_X+2];
+    for(int i=0;i!=LEN_X+2;i++)
+           curtain[i]=new char[LEN_Y+2];
+    for(int i=1;i<=LEN_X;i++){
+      for(int j=1;j<=LEN_Y;j++){
+         curtain[i][j]=' ';
+      }
+    }
+    for(int i=1;i<=LEN_Y;i++){
+        curtain[0][i]='-';
+        curtain[LEN_X+1][i]='-';
+    }
+    for(int i=1;i<=LEN_X;i++){
+        curtain[i][0]='|';
+        curtain[i][LEN_Y+1]='|';
+    }
+    curtain[0][0]=')';
+    curtain[0][LEN_Y+1]='(';
+    curtain[LEN_X+1][0]=')';
+    curtain[LEN_X+1][LEN_Y+1]='(';
+    now_block=get_new_block();
+    next_block=get_new_block();
+    now_block->fill(this);
+}
+Als_chess::~Als_chess(){
+      delete now_block;
+      delete next_block;
+      for(int i=0;i!=LEN_X+2;i++){
+        delete[] curtain[i];
+      }
+      delete[] curtain;
+}
+void Als_chess::view(){
+  clear_window();
+  gotoxy(8,29);
+  printf("俄 罗 斯 方 块");
+  gotoxy(19,56);
+  printf("from Wen and Yi. ");
+  Sleep(1300);
+}
+void Als_chess::game_begin(){
+    int select;
+  while(is_running()){
+     print();
+     select=get_choose();
+     if(select!=GIVE_UP){
+        if(select!=ERROR_IN){
+           change_block(select);
+           judge_bottom();
+        }
+     }
+     else {
+        game_lose();
+     }
+  }
+}
+inline void Als_chess::game_lose(){
+   flag_running=false;
+}
+inline void Als_chess::change_block(int select){
+    switch(select){
+       case TURN_LEFT: turn_left();
+             break;
+       case TURN_RIGHT: turn_right();
+             break;
+       case DOWN: down();
+             break;
+       case DEFORMATION:deformation();
+             break;
+     }
+}
+inline void Als_chess::judge_bottom(){
+    if(hit_bottom()){
+        if(now_block->in_top()){
+          game_lose();
+        }
+        else {
+          clear_floor();
+          delete now_block;
+          now_block=next_block;
+          next_block=get_new_block();
+          now_block->fill(this);
+        }
+    }
+}
+bool Als_chess::game_over(){
+   char select,a[10];
+   next_block->fill(this);
+   gotoxy(LEN_X-2,LEN_Y+2);
+   printf("很遗憾");
+   gotoxy(LEN_X-1,LEN_Y+5);
+   printf("您输了");
+   gotoxy(20,50);
+   Sleep(2000);
+   while(1){
+    clear_window();
+    gotoxy(8,24);
+    printf("您最后的得分是：%d",score);
+    gotoxy(12,32);
+    printf("再来一局？(Y/N)  ");
+    scanf("%s",a);
+    select=a[0];
+    if(select=='Y'||select=='y'){
+        Sleep(500);
+        return true;
+    }
+    if(select=='N'||select=='n') {
+        clear_window();
+        gotoxy(8,29);
+        printf("G a m e  O v e r . ");
+        Sleep(1000);
+        return false;
+    }
+   }
+}
+
+inline int Als_chess::get_choose(){
+  //A:左 D:右 S:下 W:变形 Q:退出
+  char a[7];
+  gets(a);
+  char k=a[0];
+  if(k=='a'||k=='A'){
+      return TURN_LEFT;
+  }
+   if(k=='d'||k=='D'){
+      return TURN_RIGHT;
+  }
+   if(k=='s'||k=='S'){
+      return DOWN;
+  }
+   if(k=='w'||k=='W'){
+      return DEFORMATION;
+  }
+   if(k=='q'||k=='Q'){
+      return GIVE_UP;
+  }
+  return ERROR_IN;
+}
+inline double Als_chess::random(double start, double end){
+    return start+(end-start)*rand()/(RAND_MAX + 1.0);
+}
+inline void Als_chess::print(){
+    clear_window();
+   for(int i=0;i<=LEN_X+1;i++)
+   {
+       for(int j=0;j<=LEN_Y+1;j++)
+          printf("%c",curtain[i][j]);
+       printf("\n");
+   }
+   next_block->print_next();
+   gotoxy(LEVEL_X,LEVEL_Y);
+   printf("等级:%5d",level);
+   gotoxy(SCORE_X,SCORE_Y);
+   printf("得分:%5d",score);
+   gotoxy(1,LEN_Y+3);
+   printf("下一个是:");
+   gotoxy(LEN_X+2,3);
+   printf("操作提示:");
+   gotoxy(LEN_X+3,5);
+   printf("按下方向键后按ENTER键移动 A:左 D:右 S:下 W:变形 Q:退出\n");
+
+}
+inline void Als_chess::deformation(){
+     now_block->deformation(this);
+}
+inline void Als_chess::turn_left(){
+    now_block->turn_left(this);
+}
+inline void Als_chess::turn_right(){
+    now_block->turn_right(this);
+}
+inline void Als_chess::down(){
+    now_block->down(this);
+}
+inline bool Als_chess::is_running(){
+     return flag_running;
+}
+inline bool Als_chess::hit_bottom(){
+     return now_block->hit_bottom(this);
+}
+Block* Als_chess::get_new_block(){
+    int k=random(1,8);
+    switch(k){
+      case 1: return new Square();
+      case 2: return new Triangle();
+      case 3: return new Hook();
+      case 4: return new Left_stick();
+      case 5: return new Right_stick();
+      case 6: return new Left_parall();
+      case 7: return new Right_parall();
+    }
+}
+inline void Als_chess::clear_floor(){
+     int f=now_block->last_floor();
+     for(int i=0;i<4&&f;i++,f--){
+        if(full_floor(f)){
+        add_score();
+        delete_floor(f);
+       }
+     }
+
+ }
+inline void Als_chess::add_score(){
+        score++;
+        if(score>=score_for_level_up){
+            level++;
+            score_for_level_up*=2;
+        }
+ }
+inline bool Als_chess::full_floor(int f){
+   for(int i=1;i<=LEN_Y;i++){
+       if(curtain[f][i]!='#')
+          return false;
+   }
+   return true;
+ }
+inline void Als_chess::delete_floor(int f){
+    delete[] curtain[f];
+    for(int i=f;i!=1;i--){
+        curtain[i]=curtain[i-1];
+    }
+    curtain[1]=new char[LEN_Y+2];
+    curtain[1][0]=curtain[1][LEN_Y+1]='|';
+    for(int i=1;i<=LEN_Y;i++){
+        curtain[1][i]=' ';
+    }
+ }
+inline void Als_chess::fill(int x,int y){
+      curtain[x][y]='#';
+}
+inline bool Als_chess::filled(int x,int y){
+      return curtain[x][y]!=' ';
+}
+inline void Als_chess::deleted(int x,int y){
+       curtain[x][y]=' ';
+}
+
+Block::Block(){}
+Block::~Block(){}
+inline bool Block::in_top(){
+   return x==2;
+}
+
+Square::Square(){
+  x=2;
+  y=Als_chess::LEN_Y/2;
+  level=0;
+}
+Square::~Square(){
+
+}
+void Square::deformation(Als_chess* chess){
+
+}
+void Square::turn_left(Als_chess* chess){
+    if(!over_line(Als_chess::TURN_LEFT,chess)){
+     deleted(chess);
+     y--;
+     fill(chess);
+    }
+}
+void Square::turn_right(Als_chess* chess){
+    if(!over_line(Als_chess::TURN_RIGHT,chess)){
+      deleted(chess);
+     y++;
+     fill(chess);
+    }
+}
+void Square::down(Als_chess* chess){
+    if(!over_line(Als_chess::DOWN,chess)){
+        deleted(chess);
+        x++;
+        fill(chess);
+    }
+
+}
+void Square::fill(Als_chess* chess){
+   chess->fill(x-1,y);
+   chess->fill(x-1,y+1);
+   chess->fill(x,y);
+   chess->fill(x,y+1);
+}
+void Square::print_next(){
+     gotoxy(Als_chess::NEXT_X,Als_chess::NEXT_Y);
+     printf("##");
+     gotoxy(Als_chess::NEXT_X+1,Als_chess::NEXT_Y);
+     printf("##");
+}
+bool Square::hit_bottom(Als_chess* chess){
+   return over_line(Als_chess::DOWN,chess);
+}
+bool Square::over_line(int k,Als_chess* chess){
+     switch(k){
+   case Als_chess::TURN_LEFT:
+             return chess->filled(x-1,y-1)||chess->filled(x,y-1);
+   case Als_chess::TURN_RIGHT:
+             return chess->filled(x-1,y+2)||chess->filled(x,y+2);
+   case Als_chess::DOWN:
+            return chess->filled(x+1,y)||chess->filled(x+1,y+1);
+     }
+}
+int Square::last_floor(){
+      return x;
+}
+void Square::deleted(Als_chess* chess){
+      chess->deleted(x-1,y);
+      chess->deleted(x-1,y+1);
+      chess->deleted(x,y);
+      chess->deleted(x,y+1);
+}
+
+Triangle::Triangle(){
+  x=2;
+  y=Als_chess::LEN_Y/2;
+  level=UP;
+}
+Triangle::~Triangle(){
+
+}
+void Triangle::deformation(Als_chess* chess){
+      switch(level){
+    case UP:
+        if(!over_line(LEFT,chess))
+        {
+            deleted(chess);
+            level=LEFT;
+            fill(chess);
+        }
+        return ;
+    case LEFT:
+        if(!over_line(DOWN,chess))
+        {
+            deleted(chess);
+            level=DOWN;
+            fill(chess);
+        }
+        return ;
+    case DOWN:
+        if(!over_line(RIGHT,chess))
+        {
+            deleted(chess);
+            level=RIGHT;
+            fill(chess);
+        }
+        return ;
+    case RIGHT:
+        if(!over_line(UP,chess))
+        {
+            deleted(chess);
+            level=UP;
+            fill(chess);
+        }
+        return ;
+      }
+}
+void Triangle::turn_left(Als_chess* chess){
+    switch(level){
+   case UP:
+       if(over_line(UP_LEFT,chess)){
+             return ;
+       }
+       break;
+   case LEFT:
+       if(over_line(LEFT_LEFT,chess)){
+          return ;
+       }
+       break;
+   case DOWN:
+       if(over_line(DOWN_LEFT,chess)){
+          return ;
+       }
+       break;
+   case RIGHT:
+       if(over_line(RIGHT_LEFT,chess)){
+         return ;
+       }
+    }
+    deleted(chess);
+    y--;
+    fill(chess);
+}
+void Triangle::turn_right(Als_chess* chess){
+    switch(level){
+case UP:
+    if(over_line(UP_RIGHT,chess)){
+        return ;
+     }
+    break;
+case LEFT:
+    if(over_line(LEFT_RIGHT,chess)){
+        return ;
+    }
+    break;
+case RIGHT:
+    if(over_line(RIGHT_RIGHT,chess)){
+        return ;
+    }
+    break;
+case DOWN:
+    if(over_line(DOWN_RIGHT,chess)){
+         return ;
+    }
+    }
+    deleted(chess);
+    y++;
+    fill(chess);
+}
+void Triangle::down(Als_chess* chess){
+    switch(level){
+case UP:
+    if(over_line(UP_DOWN,chess)){
+        return ;
+    }
+     break;
+case LEFT:
+    if(over_line(LEFT_DOWN,chess)){
+        return ;
+    }
+     break;
+case RIGHT:
+    if(over_line(RIGHT_DOWN,chess)){
+        return ;
+    }
+     break;
+case DOWN:
+    if(over_line(DOWN_DOWN,chess)){
+        return ;
+    }
+    }
+    deleted(chess);
+    x++;
+    fill(chess);
+}
+void Triangle::fill(Als_chess* chess){
+    switch(level){
+case UP:
+    chess->fill(x,y);
+    chess->fill(x+1,y-1);
+    chess->fill(x+1,y);
+    chess->fill(x+1,y+1);
+    return ;
+case LEFT:
+    chess->fill(x,y);
+    chess->fill(x-1,y+1);
+    chess->fill(x,y+1);
+    chess->fill(x+1,y+1);
+    return ;
+case RIGHT:
+    chess->fill(x,y);
+    chess->fill(x-1,y-1);
+    chess->fill(x,y-1);
+    chess->fill(x+1,y-1);
+    return ;
+case DOWN:
+    chess->fill(x,y);
+    chess->fill(x-1,y-1);
+    chess->fill(x-1,y);
+    chess->fill(x-1,y+1);
+    return ;
+    }
+}
+void Triangle::print_next(){
+   gotoxy(Als_chess::NEXT_X,Als_chess::NEXT_Y+1);
+   printf("#");
+   gotoxy(Als_chess::NEXT_X+1,Als_chess::NEXT_Y);
+   printf("###");
+}
+bool Triangle::hit_bottom(Als_chess* chess){
+    switch(level){
+case UP:
+    return over_line(UP_DOWN,chess);
+case LEFT:
+    return over_line(LEFT_DOWN,chess);
+case RIGHT:
+    return over_line(RIGHT_DOWN,chess);
+case DOWN:
+    return over_line(DOWN_DOWN,chess);
+    }
+}
+bool Triangle::over_line(int k,Als_chess* chess){
+   switch(k){
+case LEFT:
+    return chess->filled(x-1,y+1)||chess->filled(x,y+1);
+case DOWN:
+    return chess->filled(x-1,y-1)||chess->filled(x-1,y);
+case RIGHT:
+    return chess->filled(x,y-1)||chess->filled(x+1,y-1);
+case UP:
+    return chess->filled(x+1,y)||chess->filled(x+1,y+1);
+case UP_DOWN:
+    return chess->filled(x+2,y-1)||chess->filled(x+2,y)||
+           chess->filled(x+2,y+1);
+case UP_LEFT:
+    return chess->filled(x+1,y-2)||chess->filled(x,y-1);
+case UP_RIGHT:
+    return chess->filled(x+1,y+2)||chess->filled(x,y+1);
+case LEFT_DOWN:
+    return chess->filled(x+2,y+1)||chess->filled(x+1,y);
+case LEFT_LEFT:
+    return chess->filled(x-1,y)||chess->filled(x,y-1)||
+           chess->filled(x+1,y);
+case LEFT_RIGHT:
+    return chess->filled(x-1,y+2)||chess->filled(x,y+2)||
+           chess->filled(x+1,y+2);
+case DOWN_DOWN:
+    return chess->filled(x,y-1)||chess->filled(x,y+1)||
+           chess->filled(x+1,y);
+case DOWN_LEFT:
+    return chess->filled(x-1,y-2)||chess->filled(x,y-1);
+case DOWN_RIGHT:
+    return chess->filled(x-1,y+2)||chess->filled(x,y+1);
+case RIGHT_DOWN:
+    return chess->filled(x+2,y-1)||chess->filled(x+1,y);
+case RIGHT_LEFT:
+    return chess->filled(x-1,y-2)||chess->filled(x,y-2)||
+           chess->filled(x+1,y-2);
+case RIGHT_RIGHT:
+    return chess->filled(x-1,y)||chess->filled(x,y+1)||
+           chess->filled(x+1,y);
+   }
+}
+int Triangle::last_floor(){
+   if(level==DOWN)
+        return x;
+   else
+        return x+1;
+}
+void Triangle::deleted(Als_chess* chess){
+    switch(level){
+case UP:
+    chess->deleted(x,y);
+    chess->deleted(x+1,y-1);
+    chess->deleted(x+1,y);
+    chess->deleted(x+1,y+1);
+    return ;
+case LEFT:
+    chess->deleted(x,y);
+    chess->deleted(x-1,y+1);
+    chess->deleted(x,y+1);
+    chess->deleted(x+1,y+1);
+    return ;
+case RIGHT:
+    chess->deleted(x,y);
+    chess->deleted(x-1,y-1);
+    chess->deleted(x,y-1);
+    chess->deleted(x+1,y-1);
+    return ;
+case DOWN:
+    chess->deleted(x,y);
+    chess->deleted(x-1,y-1);
+    chess->deleted(x-1,y);
+    chess->deleted(x-1,y+1);
+    return ;
+    }
+}
+
+Hook::Hook(){
+   x=2;
+  y=Als_chess::LEN_Y/2;
+  level=LEFT;
+}
+Hook::~Hook(){
+
+}
+void Hook::deformation(Als_chess* chess){
+     switch(level){
+case UP:
+    if(!over_line(LEFT,chess)){
+       deleted(chess);
+       level=LEFT;
+       fill(chess);
+    }
+    return ;
+case LEFT:
+    if(!over_line(UP,chess)){
+       deleted(chess);
+       level=UP;
+       fill(chess);
+    }
+    return ;
+     }
+}
+void Hook::turn_left(Als_chess* chess){
+    switch(level){
+case UP:
+    if(over_line(UP_LEFT,chess)){
+         return ;
+    }
+    break;
+case LEFT:
+    if(over_line(LEFT_LEFT,chess)){
+        return ;
+    }
+    }
+    deleted(chess);
+    y--;
+    fill(chess);
+}
+void Hook::turn_right(Als_chess* chess){
+    switch(level){
+case UP:
+    if(over_line(UP_RIGHT,chess)){
+        return ;
+    }
+    break;
+case LEFT:
+    if(over_line(LEFT_RIGHT,chess)){
+        return ;
+    }
+    }
+    deleted(chess);
+    y++;
+    fill(chess);
+}
+void Hook::down(Als_chess* chess){
+   switch(level){
+case UP:
+    if(over_line(UP_DOWN,chess)){
+         return ;
+    }
+   break;
+case LEFT:
+    if(over_line(LEFT_DOWN,chess)){
+        return ;
+    }
+   }
+   deleted(chess);
+   x++;
+   fill(chess);
+}
+void Hook::fill(Als_chess* chess){
+   switch(level){
+case UP:
+    chess->fill(x-1,y);
+    chess->fill(x,y);
+    chess->fill(x+1,y);
+    chess->fill(x+2,y);
+    return ;
+case LEFT:
+    chess->fill(x,y-1);
+    chess->fill(x,y);
+    chess->fill(x,y+1);
+    chess->fill(x,y+2);
+    return ;
+   }
+}
+void Hook::print_next(){
+   gotoxy(Als_chess::NEXT_X+1,Als_chess::NEXT_Y);
+   printf("####");
+}
+bool Hook::hit_bottom(Als_chess* chess){
+    switch(level){
+case UP:
+    return over_line(UP_DOWN,chess);
+case LEFT:
+    return over_line(LEFT_DOWN,chess);
+    }
+}
+bool Hook::over_line(int k,Als_chess* chess){
+    switch(k){
+case UP:
+    return chess->filled(x-1,y-1)||chess->filled(x+1,y+1)||
+           chess->filled(x+1,y+2)||chess->filled(x+2,y+1)||
+           chess->filled(x-1,y)||chess->filled(x+1,y)||
+           chess->filled(x+2,y);
+case LEFT:
+    return chess->filled(x-1,y-1)||chess->filled(x+1,y+1)||
+           chess->filled(x+1,y+2)||chess->filled(x+2,y+1)||
+           chess->filled(x,y-1)||chess->filled(x,y+1)||
+           chess->filled(x,y+2);
+case UP_DOWN:
+    return chess->filled(x+3,y);
+case UP_LEFT:
+    return chess->filled(x-1,y-1)||chess->filled(x,y-1)||
+           chess->filled(x+1,y-1)||chess->filled(x+2,y-1);
+case UP_RIGHT:
+    return chess->filled(x-1,y+1)||chess->filled(x,y+1)||
+           chess->filled(x+1,y+1)||chess->filled(x+2,y+1);
+case LEFT_DOWN:
+    return chess->filled(x+1,y-1)||chess->filled(x+1,y)||
+           chess->filled(x+1,y+1)||chess->filled(x+1,y+2);
+case LEFT_LEFT:
+    return chess->filled(x,y-2);
+case LEFT_RIGHT:
+    return chess->filled(x,y+3);
+    }
+}
+int Hook::last_floor(){
+    switch(level){
+case UP:
+    return x+2;
+case LEFT:
+    return x;
+    }
+}
+void Hook::deleted(Als_chess* chess){
+    switch(level){
+case UP:
+    chess->deleted(x-1,y);
+    chess->deleted(x,y);
+    chess->deleted(x+1,y);
+    chess->deleted(x+2,y);
+    return ;
+case LEFT:
+    chess->deleted(x,y-1);
+    chess->deleted(x,y);
+    chess->deleted(x,y+1);
+    chess->deleted(x,y+2);
+    return ;
+    }
+}
+
+Left_stick::Left_stick(){
+  x=2;
+  y=Als_chess::LEN_Y/2-1;
+  level=LEFT;
+}
+Left_stick::~Left_stick(){
+
+}
+void Left_stick::deformation(Als_chess* chess){
+    switch(level){
+case UP:
+    if(!over_line(LEFT,chess)){
+        deleted(chess);
+        level=LEFT;
+        fill(chess);
+    }
+    return ;
+case LEFT:
+    if(!over_line(DOWN,chess)){
+        deleted(chess);
+        level=DOWN;
+        fill(chess);
+    }
+    return ;
+case RIGHT:
+    if(!over_line(UP,chess)){
+        deleted(chess);
+        level=UP;
+        fill(chess);
+    }
+    return ;
+case DOWN:
+    if(!over_line(RIGHT,chess)){
+        deleted(chess);
+        level=RIGHT;
+        fill(chess);
+    }
+    return ;
+    }
+}
+void Left_stick::turn_left(Als_chess* chess){
+    switch(level){
+case UP:
+    if(over_line(UP_LEFT,chess)){
+        return ;
+    }
+    break;
+case LEFT:
+    if(over_line(LEFT_LEFT,chess)){
+        return ;
+    }
+    break;
+case RIGHT:
+    if(over_line(RIGHT_LEFT,chess)){
+        return ;
+    }
+    break;
+case DOWN:
+    if(over_line(DOWN_LEFT,chess)){
+       return ;
+    }
+    }
+    deleted(chess);
+    y--;
+    fill(chess);
+}
+void Left_stick::turn_right(Als_chess* chess){
+    switch(level){
+case UP:
+    if(over_line(UP_RIGHT,chess)){
+       return ;
+    }
+    break;
+case LEFT:
+    if(over_line(LEFT_RIGHT,chess)){
+       return ;
+    }
+    break;
+case RIGHT:
+    if(over_line(RIGHT_RIGHT,chess)){
+        return ;
+    }
+    break;
+case DOWN:
+    if(over_line(DOWN_RIGHT,chess)){
+        return ;
+    }
+    }
+    deleted(chess);
+    y++;
+    fill(chess);
+}
+void Left_stick::down(Als_chess* chess){
+ switch(level){
+case UP:
+    if(over_line(UP_DOWN,chess)){
+       return ;
+    }
+    break;
+case LEFT:
+    if(over_line(LEFT_DOWN,chess)){
+       return ;
+    }
+    break;
+case RIGHT:
+    if(over_line(RIGHT_DOWN,chess)){
+        return ;
+    }
+    break;
+case DOWN:
+    if(over_line(DOWN_DOWN,chess)){
+        return ;
+    }
+    }
+    deleted(chess);
+    x++;
+    fill(chess);
+}
+void Left_stick::fill(Als_chess* chess){
+    switch(level){
+case UP:
+    chess->fill(x,y+1);
+    chess->fill(x+1,y-1);
+    chess->fill(x+1,y);
+    chess->fill(x+1,y+1);
+    return ;
+case LEFT:
+    chess->fill(x-1,y);
+    chess->fill(x-1,y+1);
+    chess->fill(x,y+1);
+    chess->fill(x+1,y+1);
+    return ;
+case RIGHT:
+    chess->fill(x+1,y);
+    chess->fill(x-1,y-1);
+    chess->fill(x,y-1);
+    chess->fill(x+1,y-1);
+    return ;
+case DOWN:
+    chess->fill(x-1,y-1);
+    chess->fill(x-1,y);
+    chess->fill(x-1,y+1);
+    chess->fill(x,y-1);
+    }
+}
+void Left_stick::print_next(){
+   gotoxy(Als_chess::NEXT_X,Als_chess::NEXT_Y);
+    printf("##");
+   gotoxy(Als_chess::NEXT_X+1,Als_chess::NEXT_Y+1);
+    printf("#");
+    gotoxy(Als_chess::NEXT_X+2,Als_chess::NEXT_Y+1);
+    printf("#");
+}
+bool Left_stick::hit_bottom(Als_chess* chess){
+   switch(level){
+case UP:
+    return over_line(UP_DOWN,chess);
+case LEFT:
+    return over_line(LEFT_DOWN,chess);
+case RIGHT:
+    return over_line(RIGHT_DOWN,chess);
+case DOWN:
+    return over_line(DOWN_DOWN,chess);
+   }
+}
+bool Left_stick::over_line(int k,Als_chess* chess){
+  switch(k){
+case UP:
+    return chess->filled(x,y)||chess->filled(x+1,y+1)||
+           chess->filled(x,y+1);
+case LEFT:
+    return chess->filled(x,y)||chess->filled(x-1,y+1)||
+           chess->filled(x-1,y);
+case RIGHT:
+    return chess->filled(x,y)||chess->filled(x+1,y-1)||
+           chess->filled(x+1,y);
+case DOWN:
+    return chess->filled(x,y)||chess->filled(x-1,y-1)||
+           chess->filled(x,y-1);
+case UP_DOWN:
+    return chess->filled(x+2,y-1)||chess->filled(x+2,y)||
+           chess->filled(x+2,y+1);
+case UP_LEFT:
+    return chess->filled(x+1,y-2)||chess->filled(x,y);
+case UP_RIGHT:
+    return chess->filled(x+1,y+2)||chess->filled(x,y+2);
+case LEFT_DOWN:
+    return chess->filled(x+2,y+1)||chess->filled(x,y);
+case LEFT_LEFT:
+    return chess->filled(x-1,y-1)||chess->filled(x,y)||
+           chess->filled(x+1,y);
+case LEFT_RIGHT:
+    return chess->filled(x-1,y+2)||chess->filled(x,y+2)||
+           chess->filled(x+1,y+2);
+case DOWN_DOWN:
+    return chess->filled(x+1,y-1)||chess->filled(x,y)||
+           chess->filled(x,y+1);
+case DOWN_LEFT:
+    return chess->filled(x-1,y-2)||chess->filled(x,y-2);
+case DOWN_RIGHT:
+    return chess->filled(x-1,y+2)||chess->filled(x,y);
+case RIGHT_DOWN:
+    return chess->filled(x+2,y-1)||chess->filled(x+2,y);
+case RIGHT_LEFT:
+    return chess->filled(x-1,y-2)||chess->filled(x,y-2)||
+           chess->filled(x+1,y-2);
+case RIGHT_RIGHT:
+    return chess->filled(x-1,y)||chess->filled(x,y)||
+           chess->filled(x+1,y+1);
+
+  }
+}
+int Left_stick::last_floor(){
+     switch(level){
+ case DOWN:
+    return x;
+ default:
+    return x+1;
+     }
+}
+void Left_stick::deleted(Als_chess* chess){
+    switch(level){
+case UP:
+    chess->deleted(x,y+1);
+    chess->deleted(x+1,y-1);
+    chess->deleted(x+1,y);
+    chess->deleted(x+1,y+1);
+    return ;
+case LEFT:
+    chess->deleted(x-1,y);
+    chess->deleted(x-1,y+1);
+    chess->deleted(x,y+1);
+    chess->deleted(x+1,y+1);
+    return ;
+case RIGHT:
+    chess->deleted(x+1,y);
+    chess->deleted(x-1,y-1);
+    chess->deleted(x,y-1);
+    chess->deleted(x+1,y-1);
+    return ;
+case DOWN:
+    chess->deleted(x,y-1);
+    chess->deleted(x-1,y-1);
+    chess->deleted(x-1,y);
+    chess->deleted(x-1,y+1);
+    return ;
+    }
+}
+
+
+Right_stick::Right_stick(){
+  x=2;
+  y=Als_chess::LEN_Y/2+1;
+  level=RIGHT;
+}
+Right_stick::~Right_stick(){
+
+}
+void Right_stick::deformation(Als_chess* chess){
+    switch(level){
+case UP:
+    if(!over_line(LEFT,chess)){
+        deleted(chess);
+        level=LEFT;
+        fill(chess);
+    }
+    return ;
+case LEFT:
+    if(!over_line(DOWN,chess)){
+        deleted(chess);
+        level=DOWN;
+        fill(chess);
+    }
+    return ;
+case RIGHT:
+    if(!over_line(UP,chess)){
+        deleted(chess);
+        level=UP;
+        fill(chess);
+    }
+    return ;
+case DOWN:
+    if(!over_line(RIGHT,chess)){
+        deleted(chess);
+        level=RIGHT;
+        fill(chess);
+    }
+    return ;
+    }
+}
+void Right_stick::turn_left(Als_chess* chess){
+    switch(level){
+case UP:
+    if(over_line(UP_LEFT,chess)){
+        return ;
+    }
+    break;
+case LEFT:
+    if(over_line(LEFT_LEFT,chess)){
+        return ;
+    }
+    break;
+case RIGHT:
+    if(over_line(RIGHT_LEFT,chess)){
+        return ;
+    }
+    break;
+case DOWN:
+    if(over_line(DOWN_LEFT,chess)){
+       return ;
+    }
+    }
+    deleted(chess);
+    y--;
+    fill(chess);
+}
+void Right_stick::turn_right(Als_chess* chess){
+    switch(level){
+case UP:
+    if(over_line(UP_RIGHT,chess)){
+       return ;
+    }
+    break;
+case LEFT:
+    if(over_line(LEFT_RIGHT,chess)){
+       return ;
+    }
+    break;
+case RIGHT:
+    if(over_line(RIGHT_RIGHT,chess)){
+        return ;
+    }
+    break;
+case DOWN:
+    if(over_line(DOWN_RIGHT,chess)){
+        return ;
+    }
+    }
+    deleted(chess);
+    y++;
+    fill(chess);
+}
+void Right_stick::down(Als_chess* chess){
+ switch(level){
+case UP:
+    if(over_line(UP_DOWN,chess)){
+       return ;
+    }
+    break;
+case LEFT:
+    if(over_line(LEFT_DOWN,chess)){
+       return ;
+    }
+    break;
+case RIGHT:
+    if(over_line(RIGHT_DOWN,chess)){
+        return ;
+    }
+    break;
+case DOWN:
+    if(over_line(DOWN_DOWN,chess)){
+        return ;
+    }
+    }
+    deleted(chess);
+    x++;
+    fill(chess);
+}
+void Right_stick::fill(Als_chess* chess){
+    switch(level){
+case UP:
+    chess->fill(x,y-1);
+    chess->fill(x+1,y-1);
+    chess->fill(x+1,y);
+    chess->fill(x+1,y+1);
+    return ;
+case LEFT:
+    chess->fill(x+1,y);
+    chess->fill(x-1,y+1);
+    chess->fill(x,y+1);
+    chess->fill(x+1,y+1);
+    return ;
+case RIGHT:
+    chess->fill(x-1,y);
+    chess->fill(x-1,y-1);
+    chess->fill(x,y-1);
+    chess->fill(x+1,y-1);
+    return ;
+case DOWN:
+    chess->fill(x-1,y-1);
+    chess->fill(x-1,y);
+    chess->fill(x-1,y+1);
+    chess->fill(x,y+1);
+    }
+}
+void Right_stick::print_next(){
+   gotoxy(Als_chess::NEXT_X,Als_chess::NEXT_Y);
+    printf("##");
+   gotoxy(Als_chess::NEXT_X+1,Als_chess::NEXT_Y);
+    printf("#");
+    gotoxy(Als_chess::NEXT_X+2,Als_chess::NEXT_Y);
+    printf("#");
+}
+bool Right_stick::hit_bottom(Als_chess* chess){
+   switch(level){
+case UP:
+    return over_line(UP_DOWN,chess);
+case LEFT:
+    return over_line(LEFT_DOWN,chess);
+case RIGHT:
+    return over_line(RIGHT_DOWN,chess);
+case DOWN:
+    return over_line(DOWN_DOWN,chess);
+   }
+}
+bool Right_stick::over_line(int k,Als_chess* chess){
+  switch(k){
+case UP:
+    return chess->filled(x,y)||chess->filled(x+1,y)||
+           chess->filled(x+1,y+1);
+case LEFT:
+    return chess->filled(x,y)||chess->filled(x-1,y+1)||
+           chess->filled(x,y+1);
+case RIGHT:
+    return chess->filled(x,y)||chess->filled(x,y-1)||
+           chess->filled(x+1,y-1);
+case DOWN:
+    return chess->filled(x,y)||chess->filled(x-1,y-1)||
+           chess->filled(x-1,y);
+case UP_DOWN:
+    return chess->filled(x+2,y-1)||chess->filled(x+2,y)||
+           chess->filled(x+2,y+1);
+case UP_LEFT:
+    return chess->filled(x+1,y-2)||chess->filled(x,y-2);
+case UP_RIGHT:
+    return chess->filled(x+1,y+2)||chess->filled(x,y);
+case LEFT_DOWN:
+    return chess->filled(x+2,y+1)||chess->filled(x+2,y);
+case LEFT_LEFT:
+    return chess->filled(x-1,y)||chess->filled(x,y)||
+           chess->filled(x+1,y-1);
+case LEFT_RIGHT:
+    return chess->filled(x-1,y+2)||chess->filled(x,y+2)||
+           chess->filled(x+1,y+2);
+case DOWN_DOWN:
+    return chess->filled(x,y-1)||chess->filled(x,y)||
+           chess->filled(x+1,y+1);
+case DOWN_LEFT:
+    return chess->filled(x-1,y-2)||chess->filled(x,y);
+case DOWN_RIGHT:
+    return chess->filled(x-1,y+2)||chess->filled(x,y+2);
+case RIGHT_DOWN:
+    return chess->filled(x+2,y-1)||chess->filled(x,y);
+case RIGHT_LEFT:
+    return chess->filled(x-1,y-2)||chess->filled(x,y-2)||
+           chess->filled(x+1,y-2);
+case RIGHT_RIGHT:
+    return chess->filled(x-1,y+1)||chess->filled(x,y)||
+           chess->filled(x+1,y);
+  }
+}
+int Right_stick::last_floor(){
+     switch(level){
+ case DOWN:
+    return x;
+ default:
+    return x+1;
+     }
+}
+void Right_stick::deleted(Als_chess* chess){
+    switch(level){
+case UP:
+    chess->deleted(x,y-1);
+    chess->deleted(x+1,y-1);
+    chess->deleted(x+1,y);
+    chess->deleted(x+1,y+1);
+    return ;
+case LEFT:
+    chess->deleted(x+1,y);
+    chess->deleted(x-1,y+1);
+    chess->deleted(x,y+1);
+    chess->deleted(x+1,y+1);
+    return ;
+case RIGHT:
+    chess->deleted(x-1,y);
+    chess->deleted(x-1,y-1);
+    chess->deleted(x,y-1);
+    chess->deleted(x+1,y-1);
+    return ;
+case DOWN:
+    chess->deleted(x,y+1);
+    chess->deleted(x-1,y-1);
+    chess->deleted(x-1,y);
+    chess->deleted(x-1,y+1);
+    return ;
+    }
+}
+
+Left_parall::Left_parall(){
+  x=2;
+  y=Als_chess::LEN_Y/2;
+  level=LEFT;
+}
+Left_parall::~Left_parall(){
+
+}
+void Left_parall::deformation(Als_chess* chess){
+     switch(level){
+case UP:
+    if(!over_line(LEFT,chess)){
+       deleted(chess);
+       level=LEFT;
+       fill(chess);
+    }
+    return ;
+case LEFT:
+    if(!over_line(UP,chess)){
+       deleted(chess);
+       level=UP;
+       fill(chess);
+    }
+    return ;
+     }
+}
+void Left_parall::turn_left(Als_chess* chess){
+    switch(level){
+case UP:
+    if(over_line(UP_LEFT,chess)){
+         return ;
+    }
+    break;
+case LEFT:
+    if(over_line(LEFT_LEFT,chess)){
+        return ;
+    }
+    }
+    deleted(chess);
+    y--;
+    fill(chess);
+}
+void Left_parall::turn_right(Als_chess* chess){
+    switch(level){
+case UP:
+    if(over_line(UP_RIGHT,chess)){
+        return ;
+    }
+    break;
+case LEFT:
+    if(over_line(LEFT_RIGHT,chess)){
+        return ;
+    }
+    }
+    deleted(chess);
+    y++;
+    fill(chess);
+}
+void Left_parall::down(Als_chess* chess){
+   switch(level){
+case UP:
+    if(over_line(UP_DOWN,chess)){
+         return ;
+    }
+   break;
+case LEFT:
+    if(over_line(LEFT_DOWN,chess)){
+        return ;
+    }
+   }
+   deleted(chess);
+   x++;
+   fill(chess);
+}
+void Left_parall::fill(Als_chess* chess){
+   switch(level){
+case UP:
+    chess->fill(x-1,y);
+    chess->fill(x,y-1);
+    chess->fill(x,y);
+    chess->fill(x+1,y-1);
+    return ;
+case LEFT:
+    chess->fill(x-1,y-1);
+    chess->fill(x-1,y);
+    chess->fill(x,y);
+    chess->fill(x,y+1);
+    return ;
+   }
+}
+void Left_parall::print_next(){
+   gotoxy(Als_chess::NEXT_X,Als_chess::NEXT_Y);
+   printf("##");
+   gotoxy(Als_chess::NEXT_X+1,Als_chess::NEXT_Y+1);
+   printf("##");
+}
+bool Left_parall::hit_bottom(Als_chess* chess){
+    switch(level){
+case UP:
+    return over_line(UP_DOWN,chess);
+case LEFT:
+    return over_line(LEFT_DOWN,chess);
+    }
+}
+bool Left_parall::over_line(int k,Als_chess* chess){
+    switch(k){
+case UP:
+    return chess->filled(x-1,y+1)||chess->filled(x,y-1)||
+           chess->filled(x+1,y-1);
+case LEFT:
+    return chess->filled(x-1,y-1)||chess->filled(x-1,y+1)||
+           chess->filled(x,y+1);
+case UP_DOWN:
+    return chess->filled(x+2,y-1)||chess->filled(x+1,y);
+case UP_LEFT:
+    return chess->filled(x-1,y-1)||chess->filled(x,y-2)||
+           chess->filled(x+1,y-2);
+case UP_RIGHT:
+    return chess->filled(x-1,y+1)||chess->filled(x,y+1)||
+           chess->filled(x+1,y);
+case LEFT_DOWN:
+    return chess->filled(x,y-1)||chess->filled(x+1,y)||
+           chess->filled(x+1,y+1);
+case LEFT_LEFT:
+    return chess->filled(x-1,y-2)||chess->filled(x,y-1);
+case LEFT_RIGHT:
+    return chess->filled(x-1,y+1)||chess->filled(x,y+2);
+    }
+}
+int Left_parall::last_floor(){
+    switch(level){
+case UP:
+    return x+1;
+case LEFT:
+    return x;
+    }
+}
+void Left_parall::deleted(Als_chess* chess){
+    switch(level){
+case UP:
+    chess->deleted(x-1,y);
+    chess->deleted(x,y-1);
+    chess->deleted(x,y);
+    chess->deleted(x+1,y-1);
+    return ;
+case LEFT:
+    chess->deleted(x-1,y-1);
+    chess->deleted(x-1,y);
+    chess->deleted(x,y);
+    chess->deleted(x,y+1);
+    return ;
+    }
+}
+
+Right_parall::Right_parall(){
+  x=2;
+  y=Als_chess::LEN_Y/2;
+  level=LEFT;
+}
+Right_parall::~Right_parall(){
+
+}
+void Right_parall::deformation(Als_chess* chess){
+     switch(level){
+case UP:
+    if(!over_line(LEFT,chess)){
+       deleted(chess);
+       level=LEFT;
+       fill(chess);
+    }
+    return ;
+case LEFT:
+    if(!over_line(UP,chess)){
+       deleted(chess);
+       level=UP;
+       fill(chess);
+    }
+    return ;
+     }
+}
+void Right_parall::turn_left(Als_chess* chess){
+    switch(level){
+case UP:
+    if(over_line(UP_LEFT,chess)){
+         return ;
+    }
+    break;
+case LEFT:
+    if(over_line(LEFT_LEFT,chess)){
+        return ;
+    }
+    }
+    deleted(chess);
+    y--;
+    fill(chess);
+}
+void Right_parall::turn_right(Als_chess* chess){
+    switch(level){
+case UP:
+    if(over_line(UP_RIGHT,chess)){
+        return ;
+    }
+    break;
+case LEFT:
+    if(over_line(LEFT_RIGHT,chess)){
+        return ;
+    }
+    }
+    deleted(chess);
+    y++;
+    fill(chess);
+}
+void Right_parall::down(Als_chess* chess){
+   switch(level){
+case UP:
+    if(over_line(UP_DOWN,chess)){
+         return ;
+    }
+   break;
+case LEFT:
+    if(over_line(LEFT_DOWN,chess)){
+        return ;
+    }
+   }
+   deleted(chess);
+   x++;
+   fill(chess);
+}
+void Right_parall::fill(Als_chess* chess){
+   switch(level){
+case UP:
+    chess->fill(x-1,y-1);
+    chess->fill(x,y-1);
+    chess->fill(x,y);
+    chess->fill(x+1,y);
+    return ;
+case LEFT:
+    chess->fill(x-1,y);
+    chess->fill(x-1,y+1);
+    chess->fill(x,y);
+    chess->fill(x,y-1);
+    return ;
+   }
+}
+void Right_parall::print_next(){
+   gotoxy(Als_chess::NEXT_X+1,Als_chess::NEXT_Y);
+   printf("##");
+   gotoxy(Als_chess::NEXT_X,Als_chess::NEXT_Y+1);
+   printf("##");
+}
+bool Right_parall::hit_bottom(Als_chess* chess){
+    switch(level){
+case UP:
+    return over_line(UP_DOWN,chess);
+case LEFT:
+    return over_line(LEFT_DOWN,chess);
+    }
+}
+bool Right_parall::over_line(int k,Als_chess* chess){
+    switch(k){
+case UP:
+    return chess->filled(x-1,y-1)||chess->filled(x+1,y-1)||
+           chess->filled(x+1,y);
+case LEFT:
+    return chess->filled(x-1,y)||chess->filled(x-1,y+1)||
+           chess->filled(x+1,y-1);
+case UP_DOWN:
+    return chess->filled(x+1,y-1)||chess->filled(x+2,y);
+case UP_LEFT:
+    return chess->filled(x-1,y-2)||chess->filled(x,y-2)||
+           chess->filled(x+1,y-1);
+case UP_RIGHT:
+    return chess->filled(x-1,y)||chess->filled(x,y+1)||
+           chess->filled(x+1,y+1);
+case LEFT_DOWN:
+    return chess->filled(x+1,y-1)||chess->filled(x+1,y)||
+           chess->filled(x,y+1);
+case LEFT_LEFT:
+    return chess->filled(x-1,y-1)||chess->filled(x,y-2);
+case LEFT_RIGHT:
+    return chess->filled(x-1,y+2)||chess->filled(x,y+1);
+    }
+}
+int Right_parall::last_floor(){
+    switch(level){
+case UP:
+    return x+1;
+case LEFT:
+    return x;
+    }
+}
+void Right_parall::deleted(Als_chess* chess){
+    switch(level){
+case UP:
+    chess->deleted(x-1,y-1);
+    chess->deleted(x,y-1);
+    chess->deleted(x,y);
+    chess->deleted(x+1,y);
+    return ;
+case LEFT:
+    chess->deleted(x-1,y);
+    chess->deleted(x-1,y+1);
+    chess->deleted(x,y-1);
+    chess->deleted(x,y);
+    return ;
+    }
+}
+
+
+#include "head.h"
+int main()
+{
+
+    init();
+    return 0;
+}
+
+
+
+
+

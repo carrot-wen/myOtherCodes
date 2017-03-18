@@ -1,0 +1,160 @@
+#include<cstdio>
+#include<cstdlib>
+#include<algorithm>
+#include<iostream>
+#include<string.h>
+#include<string>
+#include<cmath>
+#include <queue>
+#define mymax(a,b) (a)>(b)?(a):(b)
+#define mymin(a,b) (a)<(b)?(a):(b)
+
+using namespace std;
+struct Data
+{
+    char letter;
+    int key;
+};
+struct Node
+{
+    int num;
+    int ma;
+    int isle;
+    int one;
+    int left;
+    int right;
+};
+bool operator<(Data a,Data b)
+{
+    return a.key>b.key;
+}
+Data a[27];
+Node tree[27][28];
+char hfm[27][20]={{'\0'}};
+char ans[20]="\0";
+void uptree()
+{
+    for(int i=26; i>0; --i)
+    {
+        tree[i][i].ma=0;
+        tree[i][i-1].ma=1;
+        int key=tree[i][i].num+tree[i][i-1].num;
+        for(int j=0; j!=i; j++)
+        {
+            if(tree[i][j].num>key)
+            {
+                tree[i-1][j].num=tree[i][j].num;
+                tree[i-1][j].one=j;
+            }
+            else
+            {
+                tree[i-1][j].num=key;
+                tree[i-1][j].left=i-1;
+                tree[i-1][j].right=i;
+                tree[i-1][j].isle=1;
+                for(j=j+1; j<i; ++j)
+                {
+                    tree[i-1][j].num=tree[i][j-1].num;
+                    tree[i-1][j].one=j-1;
+                }
+                break;
+            }
+        }
+    }
+}
+
+void first(){
+    {
+        a[0].letter=' ';
+        a[0].key=186;
+        a[1].letter='a';
+        a[1].key=64;
+        a[2].letter='b';
+        a[2].key=13;
+        a[3].letter='c';
+        a[3].key=22;
+        a[4].letter='d';
+        a[4].key=32;
+        a[5].letter='e';
+        a[5].key=103;
+        a[6].letter='f';
+        a[6].key=21;
+        a[7].letter='g';
+        a[7].key=15;
+        a[8].letter='h';
+        a[8].key=47;
+        a[9].letter='i';
+        a[9].key=57;
+        a[10].letter='j';
+        a[10].key=1;
+        a[11].letter='k';
+        a[11].key=5;
+        a[12].letter='l';
+        a[12].key=32;
+        a[13].letter='m';
+        a[13].key=20;
+        a[14].letter='n';
+        a[14].key=57;
+        a[15].letter='o';
+        a[15].key=63;
+        a[16].letter='p';
+        a[16].key=15;
+        a[17].letter='q';
+        a[17].key=1;
+        a[18].letter='r';
+        a[18].key=48;
+        a[19].letter='s';
+        a[19].key=51;
+        a[20].letter='t';
+        a[20].key=80;
+        a[21].letter='u';
+        a[21].key=23;
+        a[22].letter='v';
+        a[22].key=8;
+        a[23].letter='w';
+        a[23].key=18;
+        a[24].letter='x';
+        a[24].key=1;
+        a[25].letter='y';
+        a[25].key=16;
+        a[26].letter='z';
+        a[26].key=1;
+    }
+    sort(a,a+27);
+    for(int i=0; i!=27; ++i)
+    {
+        for(int j=0; j!=i; ++j){
+              tree[i][j].ma=-1;
+              tree[i][j].isle=0;
+               tree[i][j].one=-1;
+        }
+    }
+    for(int i=0; i!=27; ++i)
+    {
+        tree[26][i].num=a[i].key;
+        tree[26][i].isle=2;
+    }
+}
+void addhfm(int i,int j,int len){
+   switch(tree[i][j].isle){
+     case 0:addhfm(i+1,tree[i][j].one,len);break;
+     case 1:  ans[len]='0';
+              addhfm(i+1,tree[i][j].left,len+1);
+              ans[len]='1';
+              addhfm(i+1,tree[i][j].right,len+1);
+              break;
+     case 2: for(int k=0;k!=len;++k)
+              hfm[j][k]=ans[k];
+              break;
+   }
+}
+int main()
+{
+    first();
+    uptree();
+    addhfm(0,0,0);
+    for(int i=0;i<27;i++){
+      printf("%c %3d: %s\n",a[i].letter,a[i].key,hfm[i]);
+    }
+    return 0;
+}

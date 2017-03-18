@@ -1,0 +1,169 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+int qizi=1;
+int  pd();
+void tishi(int );
+int yi[10]={-1,0,1,-1,1,-1,0,1};
+int er[10]={-1,-1,-1,0,0,1,1,1};
+void xiazi();
+void error();
+void bianzi(int ,int );
+void bian(int ,int ,int ,int );
+void  ce(int ,int ,int ,int );
+void  kshi();
+void dying();void shuziy();void shuzi();
+int ceshi(int ,int );
+char  a[30][30];
+int hei=0,bai=0;int ok=0;int b,c;int w,e;int o=0;
+int main()
+{
+    int i,j,k;
+
+   for(i=0;i<11;i++)a[i][0]=i+48;
+    for(i=0;i<11;i++){
+            a[0][i]=i+48;
+    }
+   for(i=1;i<11;i++)
+    for(j=1;j<11;j++)
+   {
+       a[i][j]=' ';
+   }
+    a[4][4]=1;a[5][5]=1;
+    a[4][5]=2;a[5][4]=2;
+    printf("这是游戏：黑白棋（by文璋）\n");
+    printf("   玩家通过输入纵坐标与横坐标来下子，例如输入5 6，则会在第五列第六行落子。");
+    printf("当玩家输入0 0时，系统会给出可落子处的提示\n\n\n");
+     kshi();
+     shuziy();
+    return 0;
+
+}
+void kshi()
+{
+    dying();
+    if(pd());
+    else {
+        xiazi();
+        kshi();
+    }
+}
+int pd()
+{   int i,j,k;
+    hei=0;bai=0;
+    for(i=1;i<11;i++)
+    {
+        for(j=1;j<11;j++)
+        {
+            if(a[i][j]==1)hei++;
+            else if(a[i][j]==2)bai++;
+        }
+    }
+    if(hei+bai==100)return 1;
+    else if(hei==0)return 1;
+    else if(bai==0)return 1;
+    else return 0;
+}
+void shuziy()
+{
+   printf("黑子：%d,白子：%d\n",hei,bai);
+   if(hei>bai)printf("黑子胜！");
+    else if(bai>hei) printf("白子胜！");
+    else printf("平！");
+}
+void dying()
+{
+    int i,j,h=0,b=0;
+    for(i=0;i<11;i++)
+    {
+        for(j=0;j<11;j++)
+            {
+                printf("%c ",a[i][j]);
+            }
+            printf("\n");
+    }
+}
+void xiazi()
+{   int i;
+    if(qizi==1)printf("黑子行：");
+       else printf("白子行：");
+    int x,y;
+    scanf("%d%d",&x,&y);
+    if(a[x][y]==1||a[x][y]==2)error();
+   else  if(!(x+y))
+   {
+       tishi(qizi);
+   }
+    else {b=x,c=y;
+    a[x][y]=qizi;
+    qizi=2-qizi/2;
+    bianzi(x,y);}
+}
+void bianzi(int x,int y)
+{    int i,j,k,yes=0;
+    for(i=0;i<8;i++)
+    {
+        if(a[x+yi[i]][y+er[i]]==qizi)
+        {
+
+            bian(x+yi[i],y+er[i],yi[i],er[i]);
+            if(ok)yes=1;
+             ok=0;
+            }
+    }
+  if(!yes){
+    error();
+    a[x][y]=' ';
+       qizi=2-qizi/2;
+  }
+}
+void bian(int x,int y,int x1,int y1)
+{
+    if(a[x1+x][y1+y]==qizi)bian(x1+x,y1+y,x1,y1);
+    else if(a[x1+x][y1+y]==2-qizi/2)ok=1;
+    else ok=0;
+    if(ok)a[x][y]=2-qizi/2;
+}
+void tishi(int r)
+{
+    int i,j,o=0;
+    for(i=1;i<11;i++)
+     for(j=1;j<11;j++)
+      if(a[i][j]==r){
+       if(ceshi(i,j)){
+        printf("可走(%d,%d)处\n",w,e);
+        return;
+        }
+    }
+    printf("  你已经无路可走orz\n");
+     qizi=2-qizi/2;
+
+}
+void error()
+{
+    printf("***************\n");
+    printf("不能下这里！\a\n");
+    printf("***************\n");
+}
+int ceshi(int x,int y)
+{   w=0,e=0;
+    int r=a[x][y];
+    int i,j,k;
+    for(i=0;i<8;i++)
+    {
+        if(a[x+yi[i]][y+er[i]]==2-r/2)
+        {    ce(x+yi[i],y+er[i],yi[i],er[i]);
+             if(o)return 1;
+        }
+
+    }
+    return 0;
+}
+void ce(int x,int y,int x1,int y1)
+{
+    if(a[x1+x][y1+y]==a[x][y])ce(x1+x,y1+y,x1,y1);
+    else if(a[x1+x][y1+y]==' '){o=1;w=x1+x;e=y1+y;}
+    else o=0;
+}
+
+
