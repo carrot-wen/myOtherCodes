@@ -36,7 +36,7 @@ void output(ITERATOR first,ITERATOR last){
     }
     cout<<endl;
 }
-//殮쌈꿨흙탤埼
+//简单插入排序
 void insertSort(ITERATOR first,ITERATOR last){
     ITERATOR i,j;
     for(i=first; i<last; i++){
@@ -48,7 +48,7 @@ void insertSort(ITERATOR first,ITERATOR last){
     }
 }
 
-//챨텟탤埼
+//冒泡排序
 void bubbleSort(ITERATOR first,ITERATOR last){
     ITERATOR i,j;
     for(i=first; i<last; i++){
@@ -60,7 +60,7 @@ void bubbleSort(ITERATOR first,ITERATOR last){
     }
 }
 
-//숌데朞嶝탤埼
+//选择排序
 void selectSort(ITERATOR first,ITERATOR last){
     ITERATOR i,j,maxVal;
     for(i=first; i<last; i++){
@@ -74,7 +74,7 @@ void selectSort(ITERATOR first,ITERATOR last){
     }
 }
 
-//句랑탤埼
+//希尔排序
 void shellSort(ITERATOR first,ITERATOR last){
     int gap =(last-first)/2;
     ITERATOR i,j;
@@ -92,7 +92,7 @@ void shellSort(ITERATOR first,ITERATOR last){
 
 }
 
-//우醵탤埼
+//快速排序
 ITERATOR partition(ITERATOR first,ITERATOR last){
     TYPE val = *first;
     last--;
@@ -118,7 +118,7 @@ void quickSort(ITERATOR first,ITERATOR last){
     quickSort(middle+1,last);
 }
 
-//뚜탤埼
+//堆排序
 void heapAdjust(ITERATOR root,int index,int last){
     ITERATOR maxVal = root;
     int left = index*2 + 1;
@@ -154,7 +154,7 @@ void heapSort(ITERATOR first,ITERATOR last){
     }
 }
 
-//백깻탤埼
+//归并排序
 void marge(ITERATOR first,ITERATOR last){
     ARRAY arr(first,last);
     ITERATOR low1 =arr.begin();
@@ -189,7 +189,7 @@ void margeSort(ITERATOR first,ITERATOR last){
     marge(first,last);
 }
 
-//샘鑒탤埼
+//基数排序
 int maxBit(ITERATOR first,ITERATOR last){
     int maxVal = 10;
     int radix = 1;
