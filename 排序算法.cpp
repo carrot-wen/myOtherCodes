@@ -36,7 +36,7 @@ void output(ITERATOR first,ITERATOR last){
     }
     cout<<endl;
 }
-//Ö±½Ó²åÈëÅÅÐò
+//æ®®ìŒˆê¿¨í™íƒ¤åŸ¼
 void insertSort(ITERATOR first,ITERATOR last){
     ITERATOR i,j;
     for(i=first; i<last; i++){
@@ -48,7 +48,7 @@ void insertSort(ITERATOR first,ITERATOR last){
     }
 }
 
-//Ã°ÅÝÅÅÐò
+//ì±¨í…Ÿíƒ¤åŸ¼
 void bubbleSort(ITERATOR first,ITERATOR last){
     ITERATOR i,j;
     for(i=first; i<last; i++){
@@ -60,7 +60,7 @@ void bubbleSort(ITERATOR first,ITERATOR last){
     }
 }
 
-//¼òµ¥Ñ¡ÔñÅÅÐò
+//ìˆŒë°æœžå¶íƒ¤åŸ¼
 void selectSort(ITERATOR first,ITERATOR last){
     ITERATOR i,j,maxVal;
     for(i=first; i<last; i++){
@@ -74,7 +74,7 @@ void selectSort(ITERATOR first,ITERATOR last){
     }
 }
 
-//Ï£¶ûÅÅÐò
+//å¥ëž‘íƒ¤åŸ¼
 void shellSort(ITERATOR first,ITERATOR last){
     int gap =(last-first)/2;
     ITERATOR i,j;
@@ -92,7 +92,7 @@ void shellSort(ITERATOR first,ITERATOR last){
 
 }
 
-//¿ìËÙÅÅÐò
+//ìš°é†µíƒ¤åŸ¼
 ITERATOR partition(ITERATOR first,ITERATOR last){
     TYPE val = *first;
     last--;
@@ -118,7 +118,7 @@ void quickSort(ITERATOR first,ITERATOR last){
     quickSort(middle+1,last);
 }
 
-//¶ÑÅÅÐò
+//ëšœíƒ¤åŸ¼
 void heapAdjust(ITERATOR root,int index,int last){
     ITERATOR maxVal = root;
     int left = index*2 + 1;
@@ -154,7 +154,7 @@ void heapSort(ITERATOR first,ITERATOR last){
     }
 }
 
-//¹é²¢ÅÅÐò
+//ë°±ê¹»íƒ¤åŸ¼
 void marge(ITERATOR first,ITERATOR last){
     ARRAY arr(first,last);
     ITERATOR low1 =arr.begin();
@@ -189,7 +189,7 @@ void margeSort(ITERATOR first,ITERATOR last){
     marge(first,last);
 }
 
-//»ùÊýÅÅÐò
+//ìƒ˜é‘’íƒ¤åŸ¼
 int maxBit(ITERATOR first,ITERATOR last){
     int maxVal = 10;
     int radix = 1;
@@ -250,6 +250,6 @@ int main()
 {
     srand( (unsigned)time( NULL ) );
     sortFun fun=radixSort;
-    test(10000,fun);
+    test(100,fun);
     return 0;
 }
